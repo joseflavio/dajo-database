@@ -28,22 +28,23 @@ final public class DatabaseConfig {
         return dbConfig;
     }
 
+    private final String dbAlias;
     private final String dbHost;
     private final int dbPort;
     private final String dbName;
     private final String dbUser;
     private final String dbPassword;
-
-    private final String dbAlias;
+    private final String dbDriver;
     private final boolean dbReadOnly;
 
     private DatabaseConfig(final ConfigAccessor accessor, final String alias, final boolean readOnly) {
-        this.dbHost = accessor.getMandatoryProperty("database."+alias+".host");
-        this.dbPort = accessor.getMandatoryProperty("database."+alias+".port", new IntegerAdapter()).intValue();
-        this.dbName = accessor.getMandatoryProperty("database."+alias+".name");
-        this.dbUser = accessor.getMandatoryProperty("database."+alias+".user");
-        this.dbPassword = accessor.getMandatoryProperty("database."+alias+".password");
         this.dbAlias = alias;
+        this.dbHost = accessor.getMandatoryProperty("database."+dbAlias+".host");
+        this.dbPort = accessor.getMandatoryProperty("database."+dbAlias+".port", new IntegerAdapter()).intValue();
+        this.dbName = accessor.getMandatoryProperty("database."+dbAlias+".name");
+        this.dbUser = accessor.getMandatoryProperty("database."+dbAlias+".user");
+        this.dbPassword = accessor.getMandatoryProperty("database."+dbAlias+".password");
+        this.dbDriver = accessor.getMandatoryProperty("database."+dbAlias+".driver");
         this.dbReadOnly = readOnly;
     }
 
@@ -63,6 +64,10 @@ final public class DatabaseConfig {
 
     public String getDbPassword() {
         return dbPassword;
+    }
+
+    public String getDbDriver() {
+        return dbDriver;
     }
 
     public boolean isDbReadOnly() {

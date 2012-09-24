@@ -21,6 +21,7 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor {
     protected void finalize() {
         if( connection != null ) {
             DatabaseConnectionUtil.getInstance().closeConnection(connection);
+            connection = null;
         }
     }
 

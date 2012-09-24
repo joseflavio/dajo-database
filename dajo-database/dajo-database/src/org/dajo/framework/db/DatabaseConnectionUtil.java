@@ -3,6 +3,8 @@ package org.dajo.framework.db;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.slf4j.Logger;
@@ -14,8 +16,6 @@ final class DatabaseConnectionUtil {
 
     static private final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionUtil.class);
 
-    static private final String driverClassName = "com.microsoft.sqlserver.jdbc.SQLServerDriver";
-
     static private final DatabaseConnectionUtil INSTANCE = new DatabaseConnectionUtil();
 
     static public DatabaseConnectionUtil getInstance() {
@@ -24,22 +24,27 @@ final class DatabaseConnectionUtil {
 
     private final AtomicInteger openConnectionsCount = new AtomicInteger(0);
 
-    private DatabaseConnectionUtil() {
+    private final Set<String> databaseDriversNames = new HashSet<String>();
 
-        /*
-         * Loads Microsoft SQLServer Database Driver
-         */
+    private DatabaseConnectionUtil() {}
+
+    private void loadDatabaseDriver(final String dbDriverClassName) {
+        if( databaseDriversNames.contains(dbDriverClassName) ) {
+            return;
+        }
         try {
-            Class.forName(driverClassName);
-            DatabaseConnectionUtil.LOGGER.debug("Success loading jdbc driver class. driverClassName=" + driverClassName);
+            Class.forName(dbDriverClassName);
+            databaseDriversNames.add(dbDriverClassName);
+            DatabaseConnectionUtil.LOGGER.debug("Success loading jdbc driver class. driverClassName={}", dbDriverClassName);
         }
         catch (final ClassNotFoundException e) {
-            throw new RuntimeException("Could not load jdbc driver class. driverClassName=" + driverClassName, e);
+            throw new RuntimeException("Could not load jdbc driver class. driverClassName="+dbDriverClassName, e);
         }
-
-    }// constructor
+    }
 
     synchronized Connection getConnection(final DatabaseConfig dbConfig) {
+
+        loadDatabaseDriver(dbConfig.getDbDriver());
 
         try {
             final Connection connection = DriverManager.getConnection( dbConfig.getDbUrl(), dbConfig.getDbUser(), dbConfig.getDbPassword() );
@@ -65,16 +70,14 @@ final class DatabaseConnectionUtil {
     synchronized void closeConnection(final Connection connection) {
 
         try {
-
             if (connection == null) {
                 DatabaseConnectionUtil.LOGGER.error("Null connection. Could not close it. openConnectionsCount=" + openConnectionsCount);
                 return;
             }
-
             connection.close();
             openConnectionsCount.decrementAndGet();
             DatabaseLogger.logConnectionClosed(openConnectionsCount.intValue());
-            LOGGER.warn("Closing a db connection. openConnectionsCount=" + openConnectionsCount);
+            LOGGER.debug("Closing a db connection. openConnectionsCount=" + openConnectionsCount);
 
         }
         catch (final SQLException e) {
