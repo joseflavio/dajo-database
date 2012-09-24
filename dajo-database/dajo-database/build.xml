@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project name="dajo-database" default="jar" basedir=".">
+
+	<property file="version.properties"/>
+	<property file="build.properties"/>
+
+	<tstamp>
+		<format property="build.id" pattern="yyyyMMdd-hhmmss" timezone="UTC"/>
+	</tstamp>
+	
+	<property name="tmp.basedir" value="tmp/${jar.name}-${project.version}-jar"/>
+	<property name="tmp.build.dir" value="${tmp.basedir}/${build.id}"/>
+	<property name="tmp.classes.dir" value="${tmp.build.dir}/classes"/>
+
+    <path id="project.classpath">
+        <fileset dir="lib">
+            <include name="**/*.jar"/>
+        </fileset>       
+    </path>
+	
+	<target name="show-config">
+		<echo level="info" message="tmp.build.dir=${tmp.build.dir}"/>
+		<echo level="info" message="tmp.classes.dir=${tmp.classes.dir}"/>
+	</target>
+
+	<target name="copy-sources">
+		<delete dir="${tmp.basedir}"/>
+		<mkdir dir="${tmp.classes.dir}" />
+		<copy todir="${tmp.classes.dir}">
+			<fileset dir="src" includes="**/*" />
+		</copy>
+	</target>
+	
+	<target name="compile" depends="copy-sources">
+		<property name="debugClassPath" refid="project.classpath"/>
+		<echo level="info" message="Classpath=${debugClassPath}"/>
+		<javac
+            optimize="true" deprecation="true" encoding="UTF-8" includeantruntime="false"
+            destdir="${tmp.classes.dir}" debug="${jar.javac.debug}" 
+            target="${jar.javac.target}" source="${jar.javac.source}" bootclasspath="${jar.javac.bootclasspath}">     			
+			<src path="${tmp.classes.dir}" />
+			<classpath refid="project.classpath"/>			
+		</javac>
+	</target>
+
+	<target name="jar">
+		<antcall target="build-external">
+			<param name="build.dest.dir" value="build/${build.id}"/>
+		</antcall>
+	</target>
+
+	<target name="build-external" depends="compile">
+
+		<fail message="Missing mandatory property.">
+			<condition>
+				<not>
+					<isset property="build.dest.dir"/>
+				</not>
+			</condition>
+		</fail>
+
+		<mkdir dir="${tmp.build.dir}/manifest"/>
+
+		<manifest file="${tmp.build.dir}/manifest/MANIFEST.MF">						
+			<attribute name="Built-By" value="${jar.manifest.builtby}"/>
+			<attribute name="Specification-Title" value="${jar.name}"/>
+			<attribute name="Specification-Version" value="${project.version}"/>
+			<attribute name="Implementation-Title" value="${jar.name}"/>
+			<attribute name="Implementation-Version" value="build-${build.id}"/>
+		</manifest>
+		
+		<mkdir dir="${build.dest.dir}"/>
+		<jar jarfile="${build.dest.dir}/${jar.name}-${project.version}.jar" manifest="${tmp.build.dir}/manifest/MANIFEST.MF" basedir="${tmp.classes.dir}"/>
+
+	</target>
+
+</project>
