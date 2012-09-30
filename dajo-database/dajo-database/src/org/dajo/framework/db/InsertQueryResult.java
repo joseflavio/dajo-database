@@ -11,9 +11,9 @@ public final class InsertQueryResult {
         this.rowsInserted = 0;
     }
 
-    public InsertQueryResult(final int rowsUpdated) {
+    public InsertQueryResult(final int rowsInserted) {
         this.querySuccessfullyExecuted = true;
-        this.rowsInserted = rowsUpdated;
+        this.rowsInserted = rowsInserted;
     }
 
     public int getRowsInserted() {

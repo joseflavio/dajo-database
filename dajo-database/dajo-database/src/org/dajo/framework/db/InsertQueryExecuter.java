@@ -38,4 +38,28 @@ final class InsertQueryExecuter {
 
     }
 
+    static BatchInsertQueryResult executeBatchInsertQuery(final Connection databaseConnection, final BatchInsertQueryInterface batchInsertQuery) {
+        try {
+
+            final String batchInsertQueryStr = batchInsertQuery.getPreparedInsertQueryString();
+            final PreparedStatement st = databaseConnection.prepareStatement(batchInsertQueryStr);
+
+            List<BatchInsertQueryParameters> paramList = batchInsertQuery.getInsertQueryParametersList();
+            for( BatchInsertQueryParameters currentInsertParams:paramList ) {
+                final List<QueryParameter> insertQueryParameterList = currentInsertParams.getInsertQueryParameters();
+                PreparedParametersUtil.fillParameters(st, insertQueryParameterList);
+                st.addBatch();
+            }
+
+            final int[] rowsInserted = st.executeBatch();
+
+            return new BatchInsertQueryResult(rowsInserted);
+
+        }
+        catch (final SQLException e) {
+            LOGGER.error("Error executing the query. insertQuery={}", new BatchInsertQueryPrinter(batchInsertQuery), e);
+            return new BatchInsertQueryResult();
+        }// try-catch
+    }
+
 }// class

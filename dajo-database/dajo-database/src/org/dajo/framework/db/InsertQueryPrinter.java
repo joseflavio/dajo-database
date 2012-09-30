@@ -12,7 +12,7 @@ public final class InsertQueryPrinter {
     @Override
     public String toString() {
         final String queryName = query.getClass().getCanonicalName();
-        final String printedSelectQuery = InternalQueryPrinter.printInsertQuery(query);
+        final String printedSelectQuery = InternalQueryPrinter.printInsertQuery(query.getPreparedInsertQueryString(), query.getInsertQueryParameters());
         final String toString = "[queryName="+ queryName + ", query=" + printedSelectQuery + "]";
         return toString;
     }

@@ -42,18 +42,13 @@ final class InternalQueryPrinter {
 
     }
 
-    static String printInsertQuery(final InsertQueryInterface insertQuery) {
-
-        final String queryString = insertQuery.getPreparedInsertQueryString();
-        final List<QueryParameter> queryParameters = insertQuery.getInsertQueryParameters();
-
+    static String printInsertQuery(final String queryString, final List<QueryParameter> queryParameters) {
         String replacedQueryString = queryString;
         for (final QueryParameter queryParam : queryParameters) {
             final Object paramValue = queryParam.getValueToPrint();
             final String printedParam = InternalQueryPrinter.convertParameterToPrint(paramValue);
             replacedQueryString = replacedQueryString.replaceFirst("\\?", printedParam);
         }
-
         return replacedQueryString;
 
     }

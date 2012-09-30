@@ -2,7 +2,7 @@ package org.dajo.framework.db;
 
 import java.sql.Connection;
 
-public final class SingleConnectionQueryExecutor implements QueryExecutor {
+public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoCloseable {
 
     private Connection connection;
 
@@ -26,11 +26,27 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor {
     }
 
     @Override
+    public void close() {
+        if( connection != null ) {
+            DatabaseConnectionUtil.getInstance().closeConnection(connection);
+            connection = null;
+        }
+    }
+
+    @Override
     public InsertQueryResult executeInsertQuery(final InsertQueryInterface insertQuery) {
         if( connection == null ) {
             return new InsertQueryResult();
         }
         final InsertQueryResult result = InsertQueryExecuter.executeInsertQuery(connection, insertQuery);
+        return result;
+    }
+
+    public BatchInsertQueryResult executeBatchInsertQuery(final BatchInsertQueryInterface batchInsertQuery) {
+        if( connection == null ) {
+            return new BatchInsertQueryResult();
+        }
+        final BatchInsertQueryResult result = InsertQueryExecuter.executeBatchInsertQuery(connection, batchInsertQuery);
         return result;
     }
 
