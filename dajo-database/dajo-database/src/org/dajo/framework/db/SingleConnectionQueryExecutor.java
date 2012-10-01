@@ -2,19 +2,15 @@ package org.dajo.framework.db;
 
 import java.sql.Connection;
 
-public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoCloseable {
+import org.dajo.chronometer.Chronometer;
+import org.dajo.loggers.db.DatabaseLogger;
+
+public class SingleConnectionQueryExecutor implements QueryExecutor {
 
     private Connection connection;
 
     public SingleConnectionQueryExecutor(final DatabaseConfig dbConfig) {
         this.connection = DatabaseConnectionUtil.getInstance().getConnection(dbConfig);
-    }
-
-    public void finish() {
-        if( connection != null ) {
-            DatabaseConnectionUtil.getInstance().closeConnection(connection);
-            connection = null;
-        }
     }
 
     @Override
@@ -25,7 +21,6 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoC
         }
     }
 
-    @Override
     public void close() {
         if( connection != null ) {
             DatabaseConnectionUtil.getInstance().closeConnection(connection);
@@ -35,6 +30,7 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoC
 
     @Override
     public InsertQueryResult executeInsertQuery(final InsertQueryInterface insertQuery) {
+
         if( connection == null ) {
             return new InsertQueryResult();
         }
@@ -42,11 +38,20 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoC
         return result;
     }
 
+    @Override
     public BatchInsertQueryResult executeBatchInsertQuery(final BatchInsertQueryInterface batchInsertQuery) {
-        if( connection == null ) {
-            return new BatchInsertQueryResult();
+        DatabaseLogger.logInsertQuery(batchInsertQuery);
+        final Chronometer chronometer = new Chronometer(this, "executeInsertQuery", batchInsertQuery);
+        chronometer.start();
+        final BatchInsertQueryResult result;
+        if( connection != null ) {
+            result = InsertQueryExecuter.executeBatchInsertQuery(connection, batchInsertQuery);
         }
-        final BatchInsertQueryResult result = InsertQueryExecuter.executeBatchInsertQuery(connection, batchInsertQuery);
+        else {
+            result = new BatchInsertQueryResult();
+        }
+        chronometer.close();
+        DatabaseLogger.logBatchInsertResult(chronometer, result);
         return result;
     }
 
@@ -61,10 +66,18 @@ public final class SingleConnectionQueryExecutor implements QueryExecutor, AutoC
 
     @Override
     public <T> SelectQueryResult<T> executeSelectQuery(final SelectQueryInterface selectQuery, final SelectQueryResultAdapter<T> queryResultAdapter) {
-        if( connection == null ) {
-            return new SelectQueryResult<T>();
+        DatabaseLogger.logSelectQuery(selectQuery);
+        final Chronometer chronometer = new Chronometer(this, "executeSelectQuery", selectQuery);
+        chronometer.start();
+        final SelectQueryResult<T> result;
+        if( connection != null ) {
+            result = SelectQueryExecuter.executeSelectQuery(connection, selectQuery, queryResultAdapter);
         }
-        final SelectQueryResult<T> result = SelectQueryExecuter.executeSelectQuery(connection, selectQuery, queryResultAdapter);
+        else {
+            result = new SelectQueryResult<T>();
+        }
+        chronometer.close();
+        DatabaseLogger.logSelectResult(chronometer, result);
         return result;
     }
 

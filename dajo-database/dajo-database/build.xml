@@ -1,14 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project name="dajo-database" default="jar" basedir=".">
 
-	<property file="version.properties"/>
-	<property file="build.properties"/>
-
+    <property file="version.properties"/>
+    <property file="build.local.properties"/>   
+    <property file="build.properties"/>
+    
+	<property name="tmp.dir" value="tmp"/> <!-- for default value -->
+	
 	<tstamp>
 		<format property="build.id" pattern="yyyyMMdd-hhmmss" timezone="UTC"/>
 	</tstamp>
 	
-	<property name="tmp.basedir" value="tmp/${jar.name}-${project.version}-jar"/>
+	<property name="tmp.basedir" value="${tmp.dir}/${jar.name}-${project.version}-jar"/>
 	<property name="tmp.build.dir" value="${tmp.basedir}/${build.id}"/>
 	<property name="tmp.classes.dir" value="${tmp.build.dir}/classes"/>
 
@@ -18,6 +21,11 @@
         </fileset>       
     </path>
 	
+    <target name="clean-all-build">
+        <delete dir="build"/>
+        <mkdir dir="build" />
+    </target>
+    	
 	<target name="show-config">
 		<echo level="info" message="tmp.build.dir=${tmp.build.dir}"/>
 		<echo level="info" message="tmp.classes.dir=${tmp.classes.dir}"/>

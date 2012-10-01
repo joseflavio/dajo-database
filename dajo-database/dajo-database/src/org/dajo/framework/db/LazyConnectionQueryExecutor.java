@@ -9,7 +9,12 @@ import java.util.concurrent.locks.ReentrantLock;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public final class LazyConnectionQueryExecutor implements QueryExecutor {
+import org.dajo.chronometer.Chronometer;
+import org.dajo.loggers.db.DatabaseLogger;
+
+public class LazyConnectionQueryExecutor implements QueryExecutor {
+
+    static private final Logger LOGGER = LoggerFactory.getLogger(LazyConnectionQueryExecutor.class);
 
     private final Lock lock = new ReentrantLock();
 
@@ -27,19 +32,19 @@ public final class LazyConnectionQueryExecutor implements QueryExecutor {
     protected void finalize() {
         if( connection != null ) {
             DatabaseConnectionUtil.getInstance().closeConnection(connection);
+            connection = null;
         }
     }
 
-    public boolean release() {
+    public void close() {
         lock.lock();
         try {
             if( connection != null ) {
                 DatabaseConnectionUtil.getInstance().closeConnection(connection);
                 connection = null;
-                return true;
             }
             else {
-                return false;
+                LOGGER.info("no connection to release");
             }
         } finally {
             lock.unlock();
@@ -63,28 +68,50 @@ public final class LazyConnectionQueryExecutor implements QueryExecutor {
     }
 
     @Override
+    public BatchInsertQueryResult executeBatchInsertQuery(final BatchInsertQueryInterface batchInsertQuery) {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
     public UpdateQueryResult executeUpdateQuery(final UpdateQueryInterface updateQuery) {
         throw new UnsupportedOperationException();
     }
 
     @Override
     public <T> SelectQueryResult<T> executeSelectQuery(final SelectQueryInterface selectQuery, final SelectQueryResultAdapter<T> queryResultAdapter) {
+        DatabaseLogger.logSelectQuery(selectQuery);
+        final Chronometer chronometer = new Chronometer(this, "executeSelectQuery", selectQuery);
+        chronometer.start();
+
         lock.lock();
         try {
-            lastTime = new Date();
+
             if (connection == null) {
-                this.connection = DatabaseConnectionUtil.getInstance().getConnection(dbConfig);
+                connection = DatabaseConnectionUtil.getInstance().getConnection(dbConfig);
             }
-            final SelectQueryResult<T> result = SelectQueryExecuter.executeSelectQuery(connection, selectQuery, queryResultAdapter);
+
+            final SelectQueryResult<T> result;
+            if( connection != null) {
+                result = SelectQueryExecuter.executeSelectQuery(connection, selectQuery, queryResultAdapter);
+            }
+            else {
+                result = new SelectQueryResult<T>();
+            }
+
+            chronometer.close();
+            DatabaseLogger.logSelectResult(chronometer, result);
+
             return result;
         }
         finally {
+            lastTime = new Date();
             lock.unlock();
         }
+
     }
 
-    public final static class DatabaseReleaser extends TimerTask {
-        static private final Logger LOGGER = LoggerFactory.getLogger(DatabaseReleaser.class);
+    public static class DatabaseReleaser extends TimerTask {
+        static private final Logger INNERLOGGER = LoggerFactory.getLogger(DatabaseReleaser.class);
         private final LazyConnectionQueryExecutor queryExecutor;
         private final int maxIdleTime;
         public DatabaseReleaser(final LazyConnectionQueryExecutor queryExecutor, final int maxIdleTime) {
@@ -95,13 +122,10 @@ public final class LazyConnectionQueryExecutor implements QueryExecutor {
         public void run() {
             long idleTime = queryExecutor.getIdleTime();
             if( idleTime > maxIdleTime ) {
-                LOGGER.info("Max idle time reached, releasing the connection. idleTime="+idleTime);
-                boolean connectionReleased = queryExecutor.release();
-                if( connectionReleased == false ) {
-                    LOGGER.info("no connection to release");
-                }
+                INNERLOGGER.info("Max idle time reached, releasing the connection. idleTime="+idleTime);
+                 queryExecutor.close();
             }
         }
-    }
+    }// class
 
 }// class
