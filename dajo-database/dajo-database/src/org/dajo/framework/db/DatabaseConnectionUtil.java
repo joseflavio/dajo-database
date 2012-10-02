@@ -17,22 +17,22 @@ final class DatabaseConnectionUtil {
     static private final Logger LOGGER = LoggerFactory.getLogger(DatabaseConnectionUtil.class);
 
     static private final DatabaseConnectionUtil INSTANCE = new DatabaseConnectionUtil();
-   
+
     static public DatabaseConnectionUtil getInstance() {
         return INSTANCE;
     }
 
-    static private String getJdbcConnectionUrl(final DatabaseConfig dbConfig) {    	    	
+    static private String getJdbcConnectionUrl(final DatabaseConfig dbConfig) {
     	if( SqlDriver.MSSQL.equals(dbConfig.getDbDriver()) ) {
-    		return "jdbc:mssql://"+dbConfig.getDbHost()+":"+dbConfig.getDbPort()+";databaseName="+dbConfig.getDbName();
-    			
+    		return "jdbc:sqlserver://"+dbConfig.getDbHost()+":"+dbConfig.getDbPort()+";databaseName="+dbConfig.getDbName();
+
     	}
     	if( SqlDriver.MYSQL.equals(dbConfig.getDbDriver()) ) {
     		return "jdbc:mysql://"+dbConfig.getDbHost()+":"+dbConfig.getDbPort()+"/"+dbConfig.getDbName();
     	}
-    	throw new RuntimeException("Unsupported driver: " + dbConfig.getDbDriver()); 
+    	throw new RuntimeException("Unsupported driver: " + dbConfig.getDbDriver());
     }
-    
+
     private final AtomicInteger openConnectionsCount = new AtomicInteger(0);
 
     private final Set<SqlDriver> databaseDriversNames = new HashSet<SqlDriver>();
@@ -40,7 +40,7 @@ final class DatabaseConnectionUtil {
     private DatabaseConnectionUtil() {}
 
     private void loadDatabaseDriver(final SqlDriver dbDriver) {
-    	LOGGER.info("databaseDriversNames="+databaseDriversNames);
+    	//LOGGER.info("databaseDriversNames="+databaseDriversNames);
         if( databaseDriversNames.contains(dbDriver) ) {
             return;
         }
@@ -54,22 +54,22 @@ final class DatabaseConnectionUtil {
             throw new RuntimeException("Could not load jdbc driver class. dbDriver="+dbDriver+", driverClassName="+dbDriverClassName, e);
         }
     }
-    
+
     synchronized Connection getConnection(final DatabaseConfig dbConfig) {
 
         loadDatabaseDriver(dbConfig.getDbDriver());
         String dbConnectionUrl = getJdbcConnectionUrl( dbConfig);
-        LOGGER.info("dbConnectionUrl={}", dbConnectionUrl);
-        try {        	
-            
+        LOGGER.debug("dbConnectionUrl={}", dbConnectionUrl);
+        try {
+
         	final Connection connection = DriverManager.getConnection( dbConnectionUrl, dbConfig.getDbUser(), dbConfig.getDbPassword() );
             connection.setAutoCommit(true);
-            connection.setReadOnly( dbConfig.isDbReadOnly() );        
+            connection.setReadOnly( dbConfig.isDbReadOnly() );
             if( dbConfig.getDbTransactionIsolation() != null ) {
             	//NONE is not Supported by MySQL
-            	connection.setTransactionIsolation( dbConfig.getDbTransactionIsolation().intValue() ); 
+            	connection.setTransactionIsolation( dbConfig.getDbTransactionIsolation().intValue() );
             }
-            
+
             openConnectionsCount.incrementAndGet();
             DatabaseLogger.logConnectionOpen(openConnectionsCount.intValue());
             LOGGER.debug("Getting a new db connection. openConnectionsCount=" + openConnectionsCount);
