@@ -1,8 +1,10 @@
-package org.dajo.framework.db;
+package org.dajo.framework.db.resultadapters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.Date;
+
+import org.dajo.framework.db.SelectQueryResultAdapter;
 
 public final class SelectQueryResultAdapterDatetime implements SelectQueryResultAdapter<SelectQuerySingleResult<Date>> {
 

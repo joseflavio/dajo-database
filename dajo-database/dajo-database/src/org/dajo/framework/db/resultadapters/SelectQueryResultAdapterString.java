@@ -1,7 +1,9 @@
-package org.dajo.framework.db;
+package org.dajo.framework.db.resultadapters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import org.dajo.framework.db.SelectQueryResultAdapter;
 
 public final class SelectQueryResultAdapterString implements SelectQueryResultAdapter<SelectQuerySingleResult<String>> {
 

@@ -6,9 +6,9 @@ import java.util.HashMap;
 import org.dajo.framework.configuration.SimpleConfigAccessor;
 import org.dajo.framework.db.DatabaseConfig;
 import org.dajo.framework.db.SelectQueryResult;
-import org.dajo.framework.db.SelectQueryResultAdapterDatetime;
-import org.dajo.framework.db.SelectQuerySingleResult;
 import org.dajo.framework.db.SimpleQueryExecutor;
+import org.dajo.framework.db.resultadapters.SelectQueryResultAdapterDatetime;
+import org.dajo.framework.db.resultadapters.SelectQuerySingleResult;
 
 public final class TestSelectCurrentDate {
 

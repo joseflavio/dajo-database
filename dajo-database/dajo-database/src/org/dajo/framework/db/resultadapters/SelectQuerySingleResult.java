@@ -1,4 +1,4 @@
-package org.dajo.framework.db;
+package org.dajo.framework.db.resultadapters;
 
 public final class SelectQuerySingleResult<T> {
 

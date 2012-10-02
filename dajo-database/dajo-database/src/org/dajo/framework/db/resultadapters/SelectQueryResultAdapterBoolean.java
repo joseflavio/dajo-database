@@ -1,8 +1,9 @@
-package org.dajo.framework.db;
+package org.dajo.framework.db.resultadapters;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
+import org.dajo.framework.db.SelectQueryResultAdapter;
 import org.dajo.framework.db.util.MsSqlBitConverter;
 
 public final class SelectQueryResultAdapterBoolean implements SelectQueryResultAdapter<SelectQuerySingleResult<Boolean>> {
