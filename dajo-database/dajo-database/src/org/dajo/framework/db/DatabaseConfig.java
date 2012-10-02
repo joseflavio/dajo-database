@@ -34,50 +34,57 @@ final public class DatabaseConfig {
     private final String dbName;
     private final String dbUser;
     private final String dbPassword;
-    private final String dbDriver;
+    private final SqlDriver dbDriver;
+    private final Integer dbTransactionIsolation;
     private final boolean dbReadOnly;
 
+    static private final IntegerAdapter INTEGER_ADAPTER = new IntegerAdapter();
+    static private final SqlDriverTypeAdapter SQLDRIVER_ADAPTER = new SqlDriverTypeAdapter();
+    static private final TransactionIsolationTypeAdapter TRANSACTION_ISOLATION_ADAPTER = new TransactionIsolationTypeAdapter();
+    
     private DatabaseConfig(final ConfigAccessor accessor, final String alias, final boolean readOnly) {
-        this.dbAlias = alias;
-        this.dbHost = accessor.getMandatoryProperty("database."+dbAlias+".host");
-        this.dbPort = accessor.getMandatoryProperty("database."+dbAlias+".port", new IntegerAdapter()).intValue();
-        this.dbName = accessor.getMandatoryProperty("database."+dbAlias+".name");
-        this.dbUser = accessor.getMandatoryProperty("database."+dbAlias+".user");
-        this.dbPassword = accessor.getMandatoryProperty("database."+dbAlias+".password");
-        this.dbDriver = accessor.getMandatoryProperty("database."+dbAlias+".driver");
+        this.dbAlias = alias;        
+        final String prefix = "database."+dbAlias; 
+        this.dbHost = accessor.getMandatoryProperty(prefix+".host");
+        this.dbPort = accessor.getMandatoryProperty(prefix+".port", INTEGER_ADAPTER).intValue();
+        this.dbName = accessor.getMandatoryProperty(prefix+".databasename");
+        this.dbUser = accessor.getMandatoryProperty(prefix+".user");
+        this.dbPassword = accessor.getMandatoryProperty(prefix+".password");
+        this.dbDriver = accessor.getMandatoryProperty(prefix+".driver", SQLDRIVER_ADAPTER);                
+        this.dbTransactionIsolation = accessor.getOptionalProperty(prefix+".transactionIsolation", TRANSACTION_ISOLATION_ADAPTER, null);
         this.dbReadOnly = readOnly;
     }
 
-    public String getDbUrl() {
-        final String dbJdbcConnectionUrl = "jdbc:sqlserver://" + dbHost + ":" + dbPort + ";databaseName=" + dbName;
-        return dbJdbcConnectionUrl;
+	public String getDbHost() {
+    	return dbHost;
     }
 
-    public String getDbName() {
-        final String dbJdbcConnectionUrl = dbHost + ":" + dbPort + "/" + dbName;
-        return dbJdbcConnectionUrl;
+	public int getDbPort() {
+    	return dbPort;
     }
 
-    public String getDbUser() {
-        return dbUser;
+	public String getDbName() {
+    	return dbName;
     }
 
-    public String getDbPassword() {
-        return dbPassword;
+	public String getDbUser() {
+    	return dbUser;
     }
 
-    public String getDbDriver() {
-        return dbDriver;
+	public String getDbPassword() {
+    	return dbPassword;
     }
 
-    public boolean isDbReadOnly() {
-        return dbReadOnly;
+	public SqlDriver getDbDriver() {
+    	return dbDriver;
     }
 
-    @Override
-    public String toString() {
-        return "DatabaseConfig [dbAlias=" + dbAlias + ", dbHost=" + dbHost + ", dbPort=" + dbPort + ", dbName=" + dbName + ", dbUser=" + dbUser
-                + ", dbPassword=(not visible)]";
+	public Integer getDbTransactionIsolation() {
+    	return dbTransactionIsolation;
     }
+
+	public boolean isDbReadOnly() {
+    	return dbReadOnly;
+    }    
 
 }// class
