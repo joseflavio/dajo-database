@@ -8,5 +8,4 @@ public interface SelectQueryInterface {
 
     List<QueryParameter> getSelectQueryParameters();
 
-
 }// interface
