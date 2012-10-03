@@ -1,10 +1,10 @@
-package org.dajo.framework.db.util;
+package org.dajo.framework.db;
 
 import java.sql.Timestamp;
 import java.util.Date;
 
 
-public final class QueryUtil {
+public final class QueryStringUtils {
 
     static public String buildLongOrClause(final String columnName, final int parametersCount) {
 

@@ -1,10 +1,9 @@
 package org.dajo.framework.db;
 
+import org.dajo.framework.configuration.ConfigAccessor;
+import org.dajo.types.IntegerAdapter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import org.dajo.framework.adapters.IntegerAdapter;
-import org.dajo.framework.configuration.ConfigAccessor;
 
 final public class DatabaseConfig {
 
