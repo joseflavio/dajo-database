@@ -12,7 +12,7 @@ public class SelectQuerySimpleResultAdapters {
 	    @Override
 	    public SelectQuerySingleResult<Boolean> adaptResultSet(final ResultSet rs) throws SQLException {
 	        if( rs.next() ) {
-	            boolean result = BooleanConverter.checkedConvert(rs.getInt(1));
+	            boolean result = BooleanConverter.checkedIntToBool(rs.getInt(1));
 	            return new SelectQuerySingleResult<Boolean>(Boolean.valueOf(result));
 	        }
 	        return new SelectQuerySingleResult<Boolean>();
