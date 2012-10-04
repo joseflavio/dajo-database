@@ -43,6 +43,18 @@ public class SelectQuerySimpleResultAdapters {
 	    }
 	}
 	
+	static public class ResultAdapterIntegerList implements SelectQueryResultAdapter<List<Integer>> {
+	    @Override
+	    public List<Integer> adaptResultSet(final ResultSet rs) throws SQLException {
+	    	List<Integer> result = new LinkedList<Integer>();
+	        while( rs.next() ) {
+	        	final Integer current = (Integer)rs.getObject(1);
+	        	result.add(current);
+	        }
+	        return result;
+	    }
+	}
+	
 	static public class ResultAdapterLong implements SelectQueryResultAdapter<Long> {
 	    @Override
 	    public Long adaptResultSet(final ResultSet rs) throws SQLException {
