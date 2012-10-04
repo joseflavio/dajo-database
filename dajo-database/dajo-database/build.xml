@@ -79,8 +79,11 @@
 		</manifest>
 		
 		<mkdir dir="${build.dest.dir}"/>
-		<jar jarfile="${build.dest.dir}/${jar.name}-${project.version}.jar" manifest="${tmp.build.dir}/manifest/MANIFEST.MF" basedir="${tmp.classes.dir}"/>
-
+		
+		<property name="build.jarfullfilename" value="${build.dest.dir}/${jar.name}-${project.version}.jar"/>
+		<jar jarfile="${build.jarfullfilename}" manifest="${tmp.build.dir}/manifest/MANIFEST.MF" basedir="${tmp.classes.dir}"/>
+		<checksum file="${build.jarfullfilename}" format="MD5SUM" algorithm="md5"/>
+		
 	</target>
 
 </project>
