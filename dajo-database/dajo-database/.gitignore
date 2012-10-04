@@ -1,4 +1,8 @@
+# Build configuration customized for local
+build.local.properties
+!build.local.properties.copy
+
+# Directories generated during the jar build
 /build
 /tmp
 /bin
-/build.local.properties
