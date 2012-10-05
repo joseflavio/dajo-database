@@ -89,4 +89,24 @@ public class SelectQuerySimpleResultAdapters {
 	    }
 	}
 	
+	static public class ResultAdapterStringTable implements SelectQueryResultAdapter<List<String[]>> {
+		private int columns;
+		public ResultAdapterStringTable(int columns) {
+			this.columns = columns;
+		}
+	    @Override
+	    public List<String[]> adaptResultSet(final ResultSet rs) throws SQLException {
+	    	List<String[]> result = new LinkedList<String[]>();
+	        while( rs.next() ) {
+	        	String[] row = new String[columns];
+	        	for(int i=0; i < columns;++i) {
+	        		final String current = rs.getString(i+1);
+	        		row[i] = current;
+	        	}
+	        	result.add(row);
+	        }
+	        return result;
+	    }
+	}
+	
 }// class
