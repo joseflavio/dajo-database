@@ -17,13 +17,13 @@ final public class DatabaseConfig {
 
     static public DatabaseConfig getInstance(final ConfigAccessor accessor, final boolean readOnly) {
         final DatabaseConfig dbConfig = new DatabaseConfig(accessor, "default", readOnly);
-        LOGGER.trace("Configuration loaded. dbConfig="+dbConfig);
+        LOGGER.trace("Configuration loaded. dbConfig=" + dbConfig);
         return dbConfig;
     }
 
     static public DatabaseConfig getInstance(final ConfigAccessor accessor, final String dbAlias, final boolean readOnly) {
         final DatabaseConfig dbConfig = new DatabaseConfig(accessor, dbAlias, readOnly);
-        LOGGER.trace("Configuration loaded. dbConfig="+dbConfig);
+        LOGGER.trace("Configuration loaded. dbConfig=" + dbConfig);
         return dbConfig;
     }
 
@@ -40,50 +40,50 @@ final public class DatabaseConfig {
     static private final IntegerAdapter INTEGER_ADAPTER = new IntegerAdapter();
     static private final SqlDriverTypeAdapter SQLDRIVER_ADAPTER = new SqlDriverTypeAdapter();
     static private final TransactionIsolationTypeAdapter TRANSACTION_ISOLATION_ADAPTER = new TransactionIsolationTypeAdapter();
-    
+
     private DatabaseConfig(final ConfigAccessor accessor, final String alias, final boolean readOnly) {
-        this.dbAlias = alias;        
-        final String prefix = "database."+dbAlias; 
-        this.dbHost = accessor.getMandatoryProperty(prefix+".host");
-        this.dbPort = accessor.getMandatoryProperty(prefix+".port", INTEGER_ADAPTER).intValue();
-        this.dbName = accessor.getMandatoryProperty(prefix+".databasename");
-        this.dbUser = accessor.getMandatoryProperty(prefix+".user");
-        this.dbPassword = accessor.getMandatoryProperty(prefix+".password");
-        this.dbDriver = accessor.getMandatoryProperty(prefix+".driver", SQLDRIVER_ADAPTER);                
-        this.dbTransactionIsolation = accessor.getOptionalProperty(prefix+".transactionIsolation", TRANSACTION_ISOLATION_ADAPTER, null);
+        this.dbAlias = alias;
+        final String prefix = "database." + dbAlias;
+        this.dbHost = accessor.getMandatoryProperty(prefix + ".host");
+        this.dbPort = accessor.getMandatoryProperty(prefix + ".port", INTEGER_ADAPTER).intValue();
+        this.dbName = accessor.getMandatoryProperty(prefix + ".databasename");
+        this.dbUser = accessor.getMandatoryProperty(prefix + ".user");
+        this.dbPassword = accessor.getMandatoryProperty(prefix + ".password");
+        this.dbDriver = accessor.getMandatoryProperty(prefix + ".driver", SQLDRIVER_ADAPTER);
+        this.dbTransactionIsolation = accessor.getOptionalProperty(prefix + ".transactionIsolation", TRANSACTION_ISOLATION_ADAPTER, null);
         this.dbReadOnly = readOnly;
     }
 
-	public String getDbHost() {
-    	return dbHost;
+    public String getDbHost() {
+        return dbHost;
     }
 
-	public int getDbPort() {
-    	return dbPort;
+    public int getDbPort() {
+        return dbPort;
     }
 
-	public String getDbName() {
-    	return dbName;
+    public String getDbName() {
+        return dbName;
     }
 
-	public String getDbUser() {
-    	return dbUser;
+    public String getDbUser() {
+        return dbUser;
     }
 
-	public String getDbPassword() {
-    	return dbPassword;
+    public String getDbPassword() {
+        return dbPassword;
     }
 
-	public SqlDriver getDbDriver() {
-    	return dbDriver;
+    public SqlDriver getDbDriver() {
+        return dbDriver;
     }
 
-	public Integer getDbTransactionIsolation() {
-    	return dbTransactionIsolation;
+    public Integer getDbTransactionIsolation() {
+        return dbTransactionIsolation;
     }
 
-	public boolean isDbReadOnly() {
-    	return dbReadOnly;
-    }    
+    public boolean isDbReadOnly() {
+        return dbReadOnly;
+    }
 
 }// class
