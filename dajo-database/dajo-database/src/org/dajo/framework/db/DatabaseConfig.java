@@ -33,7 +33,7 @@ final public class DatabaseConfig {
     private final String dbName;
     private final String dbUser;
     private final String dbPassword;
-    private final SqlDriver dbDriver;
+    private final SqlDriversNames dbDriver;
     private final Integer dbTransactionIsolation;
     private final boolean dbReadOnly;
 
@@ -74,7 +74,7 @@ final public class DatabaseConfig {
         return dbPassword;
     }
 
-    public SqlDriver getDbDriver() {
+    public SqlDriversNames getDbDriver() {
         return dbDriver;
     }
 
