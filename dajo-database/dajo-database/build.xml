@@ -23,6 +23,7 @@
     <property name="tmp.build.dir" value="${tmp.dir}/${jar.name}-${project.version}-jar/${build.id}" />
     <property name="tmp.classes.dir" value="${tmp.build.dir}/classes" />
 
+    <!-- Classpath -->
     <path id="project.classpath">
         <fileset dir="lib">
             <include name="**/*.jar" />
