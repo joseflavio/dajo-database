@@ -6,7 +6,7 @@ import java.util.List;
 
 final class PreparedParametersUtil {
 
-    static void fillParameters(final PreparedStatement st, final List<QueryParameter> queryParameterList) throws SQLException {
+    static void fillParameters2(final PreparedStatement st, final List<QueryParameter> queryParameterList) throws SQLException {
         int parameterIndex = 1;
         for (final QueryParameter queryParameter : queryParameterList) {
             queryParameter.setPreparedStatementParameter(st, parameterIndex);

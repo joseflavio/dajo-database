@@ -13,8 +13,8 @@ final class SelectQueryExecuter {
 
     static private final Logger LOGGER = LoggerFactory.getLogger(SelectQueryExecuter.class);
 
-    static <T> SelectQueryResult<T> executeSelectQuery(
-            final Connection connection, final SelectQueryInterface selectQuery, final SelectQueryResultAdapter<T> resultAdapter) {
+    static <T> SelectQueryResult<T> executeSelectQuery(final Connection connection, final SelectQueryInterface selectQuery,
+            final SelectQueryResultAdapter<T> resultAdapter) {
 
         SelectQueryResult<T> result;
         ResultSet rs = null;
@@ -23,9 +23,10 @@ final class SelectQueryExecuter {
             String selectQueryStr = selectQuery.getPreparedSelectQueryString();
             PreparedStatement st = connection.prepareStatement(selectQueryStr);
             List<QueryParameter> selectQueryParameterList = selectQuery.getSelectQueryParameters();
-            PreparedParametersUtil.fillParameters(st, selectQueryParameterList);
+            if (selectQueryParameterList != null) {
+                PreparedParametersUtil.fillParameters2(st, selectQueryParameterList);
+            }
             rs = st.executeQuery();
-
             final T selectQueryResult = resultAdapter.adaptResultSet(rs);
             result = new SelectQueryResult<T>(selectQueryResult);
             rs.close();
@@ -35,11 +36,10 @@ final class SelectQueryExecuter {
             result = new SelectQueryResult<T>();
         } finally {
 
-            if( rs != null ) {
+            if (rs != null) {
                 try {
                     rs.close();
-                }
-                catch (SQLException e) {
+                } catch (SQLException e) {
                     LOGGER.error("Error closing the ResultSet.", e);
                 }
             }

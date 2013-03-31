@@ -19,10 +19,10 @@ final class UpdateQueryExecuter {
             final String updateQueryStr = updateQuery.getPreparedUpdateQueryString();
             final PreparedStatement st = databaseConnection.prepareStatement(updateQueryStr);
             final List<QueryParameter> updateQueryParameterList = updateQuery.getUpdateQueryParameters();
-            PreparedParametersUtil.fillParameters(st, updateQueryParameterList);
-
+            if (updateQueryParameterList != null) {
+                PreparedParametersUtil.fillParameters2(st, updateQueryParameterList);
+            }
             final int rowsUpdated = st.executeUpdate();
-
             return new UpdateQueryResult(rowsUpdated);
 
         }

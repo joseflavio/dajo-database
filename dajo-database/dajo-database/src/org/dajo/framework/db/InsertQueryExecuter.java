@@ -19,8 +19,9 @@ final class InsertQueryExecuter {
             final String insertQueryStr = insertQuery.getPreparedInsertQueryString();
             final PreparedStatement st = databaseConnection.prepareStatement(insertQueryStr);
             final List<QueryParameter> insertQueryParameterList = insertQuery.getInsertQueryParameters();
-            PreparedParametersUtil.fillParameters(st, insertQueryParameterList);
-
+            if (insertQueryParameterList != null) {
+                PreparedParametersUtil.fillParameters2(st, insertQueryParameterList);
+            }
             final int rowsInserted = st.executeUpdate();
             if (rowsInserted == 1) {
                 return new InsertQueryResult(rowsInserted);
@@ -47,7 +48,9 @@ final class InsertQueryExecuter {
             List<BatchInsertQueryParameters> paramList = batchInsertQuery.getInsertQueryParametersList();
             for( BatchInsertQueryParameters currentInsertParams:paramList ) {
                 final List<QueryParameter> insertQueryParameterList = currentInsertParams.getInsertQueryParameters();
-                PreparedParametersUtil.fillParameters(st, insertQueryParameterList);
+                if (insertQueryParameterList != null) {
+                    PreparedParametersUtil.fillParameters2(st, insertQueryParameterList);
+                }
                 st.addBatch();
             }
 
