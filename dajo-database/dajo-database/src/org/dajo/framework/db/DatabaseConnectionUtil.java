@@ -83,22 +83,24 @@ final class DatabaseConnectionUtil {
 
     }
 
-    synchronized void closeConnection(final Connection connection) {
+    synchronized boolean closeConnection(final Connection connection) {
 
         try {
             if (connection == null) {
                 DatabaseConnectionUtil.LOGGER.error("Null connection. Could not close it. openConnectionsCount=" + openConnectionsCount);
-                return;
+                return false;
             }
             connection.close();
             openConnectionsCount.decrementAndGet();
             DatabaseLogger.logConnectionClosed(openConnectionsCount.intValue());
             LOGGER.debug("Closing a db connection. openConnectionsCount=" + openConnectionsCount);
-
+            return true;
         } catch (final SQLException e) {
             DatabaseConnectionUtil.LOGGER.error("Could not close the jdbc connection. openConnectionsCount=" + openConnectionsCount, e);
+            return false;
         } catch (Throwable t) {
             LOGGER.error("Unexpected. Could not open a new connection. openConnectionsCount=" + openConnectionsCount, t);
+            return false;
         }
 
     }

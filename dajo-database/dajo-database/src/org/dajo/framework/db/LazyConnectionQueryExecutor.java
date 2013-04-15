@@ -14,7 +14,7 @@ import org.slf4j.LoggerFactory;
 
 public class LazyConnectionQueryExecutor implements QueryExecutor {
 
-    static private final Logger LOGGER = LoggerFactory.getLogger(LazyConnectionQueryExecutor.class);
+    // static private final Logger LOGGER = LoggerFactory.getLogger(LazyConnectionQueryExecutor.class);
 
     private final Lock lock = new ReentrantLock();
 
@@ -36,14 +36,15 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
         }
     }
 
-    public void close() {
+    public boolean close() {
         lock.lock();
         try {
             if (connection != null) {
-                DatabaseConnectionUtil.getInstance().closeConnection(connection);
+                boolean result = DatabaseConnectionUtil.getInstance().closeConnection(connection);
                 connection = null;
+                return result;
             } else {
-                LOGGER.info("no connection to release");
+                return false;
             }
         } finally {
             lock.unlock();
@@ -127,8 +128,9 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
         public void run() {
             long idleTime = queryExecutor.getIdleTime();
             if (idleTime > maxIdleTime) {
-                INNERLOGGER.info("Max idle time reached, releasing the connection. idleTime=" + idleTime);
-                queryExecutor.close();
+                if (queryExecutor.close() == true) {
+                    INNERLOGGER.info("Max idle time reached, releasing the connection. idleTime=" + idleTime);
+                }
             }
         }
     }// class
