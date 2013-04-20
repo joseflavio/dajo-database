@@ -1,6 +1,7 @@
 package org.dajo.framework.db;
 
 import java.sql.Connection;
+import java.sql.SQLException;
 import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -14,7 +15,7 @@ import org.slf4j.LoggerFactory;
 
 public class LazyConnectionQueryExecutor implements QueryExecutor {
 
-    // static private final Logger LOGGER = LoggerFactory.getLogger(LazyConnectionQueryExecutor.class);
+    static private final Logger LOGGER = LoggerFactory.getLogger(LazyConnectionQueryExecutor.class);
 
     private final Lock lock = new ReentrantLock();
 
@@ -30,9 +31,16 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
 
     @Override
     protected void finalize() {
-        if (connection != null) {
-            DatabaseConnectionUtil.getInstance().closeConnection(connection);
-            connection = null;
+        lock.lock();
+        try {
+            if (connection != null) {
+                DatabaseConnectionUtil.getInstance().closeConnection(connection);
+                connection = null;
+            }
+        } catch (RuntimeException re) {
+            LOGGER.error("Unexpected.", re);
+        } finally {
+            lock.unlock();
         }
     }
 
@@ -46,6 +54,9 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
             } else {
                 return false;
             }
+        } catch (RuntimeException re) {
+            LOGGER.error("Unexpected.", re);
+            return false;
         } finally {
             lock.unlock();
         }
@@ -78,14 +89,16 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
 
     @Override
     public <T> SelectQueryResult<T> executeSelectQuery(final SelectQueryInterface selectQuery, final SelectQueryResultAdapter<T> queryResultAdapter) {
+
         DatabaseLogger.logSelectQuery(selectQuery);
+
         final Chronometer chronometer = new Chronometer(this, "executeSelectQuery", selectQuery);
         chronometer.start();
 
         lock.lock();
         try {
 
-            if (connection == null) {
+            if (connection == null || connection.isClosed()) {
                 connection = DatabaseConnectionUtil.getInstance().getConnection(dbConfig);
             }
 
@@ -96,13 +109,18 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
                 result = new SelectQueryResult<T>();
             }
 
-            chronometer.close();
+
             DatabaseLogger.logSelectResult(chronometer, result);
 
             return result;
+        } catch (SQLException e) {
+            LOGGER.error("Unexpected SQLException.", e);
+            SelectQueryResult<T> error = new SelectQueryResult<T>();
+            return error;
         } finally {
             lastTime = new Date();
             lock.unlock();
+            chronometer.close();
         }
 
     }
