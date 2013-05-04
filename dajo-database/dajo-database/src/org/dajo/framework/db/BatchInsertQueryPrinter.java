@@ -16,7 +16,7 @@ public final class BatchInsertQueryPrinter {
         String toString = "BatchInsertQuery[queryName="+ queryName + " \n";
         int i = 0;
         for( BatchInsertQueryParameters currentParams : query.getInsertQueryParametersList() ) {
-            String currentPrintedQuery = InternalQueryPrinter.printInsertQuery(query.getPreparedInsertQueryString(), currentParams.getInsertQueryParameters());
+            String currentPrintedQuery = QueryPrinterInternal.printInsertQuery(query.getPreparedInsertQueryString(), currentParams.getInsertQueryParameters());
             toString +=" query " + i +": " + currentPrintedQuery + " \n";
             ++i;
         }

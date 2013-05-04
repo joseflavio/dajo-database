@@ -1,11 +1,12 @@
 package org.dajo.framework.db;
 
-import java.util.Date;
 import java.util.List;
 
-final class InternalQueryPrinter {
+final class QueryPrinterInternal {
 
-    private InternalQueryPrinter() {
+    static private final QueryPrinterParameterConverter.Default defaultConverter = new QueryPrinterParameterConverter.Default();
+
+    private QueryPrinterInternal() {
     }
 
     static String printUpdateQuery(final UpdateQueryInterface updateQuery) {
@@ -17,7 +18,7 @@ final class InternalQueryPrinter {
         if (queryParameters != null) {
             for (final QueryParameter queryParam : queryParameters) {
                 final Object paramValue = queryParam.getValueToPrint();
-                final String printedParam = InternalQueryPrinter.convertParameterToPrint(paramValue);
+                final String printedParam = defaultConverter.convertParameterToPrint(paramValue);
                 replacedQueryString = replacedQueryString.replaceFirst("\\?", printedParam);
             }
         }
@@ -27,21 +28,21 @@ final class InternalQueryPrinter {
     }
 
     static String printSelectQuery(final SelectQueryInterface selectQuery) {
+        return printSelectQuery(selectQuery, defaultConverter);
+    }
 
+    static String printSelectQuery(final SelectQueryInterface selectQuery, final QueryPrinterParameterConverter converter) {
         final String queryString = selectQuery.getPreparedSelectQueryString();
         final List<QueryParameter> queryParameters = selectQuery.getSelectQueryParameters();
-
         String replacedQueryString = queryString;
         if (queryParameters != null) {
             for (final QueryParameter queryParam : queryParameters) {
                 final Object paramValue = queryParam.getValueToPrint();
-                final String printedParam = InternalQueryPrinter.convertParameterToPrint(paramValue);
+                final String printedParam = converter.convertParameterToPrint(paramValue);
                 replacedQueryString = replacedQueryString.replaceFirst("\\?", printedParam);
             }
         }
-
         return replacedQueryString;
-
     }
 
     static String printInsertQuery(final String queryString, final List<QueryParameter> queryParameters) {
@@ -49,24 +50,11 @@ final class InternalQueryPrinter {
         if (queryParameters != null) {
             for (final QueryParameter queryParam : queryParameters) {
                 final Object paramValue = queryParam.getValueToPrint();
-                final String printedParam = InternalQueryPrinter.convertParameterToPrint(paramValue);
+                final String printedParam = defaultConverter.convertParameterToPrint(paramValue);
                 replacedQueryString = replacedQueryString.replaceFirst("\\?", printedParam);
             }
         }
         return replacedQueryString;
-
-    }
-
-    static private String convertParameterToPrint(final Object paramValue) {
-        final String printedParam;
-        if (paramValue instanceof String) {
-            printedParam = "'" + (String) paramValue + "'";
-        } else if (paramValue instanceof Date) {
-            printedParam = "'" + paramValue.toString() + "'";
-        } else {
-            printedParam = paramValue.toString();
-        }
-        return printedParam;
     }
 
 }// class

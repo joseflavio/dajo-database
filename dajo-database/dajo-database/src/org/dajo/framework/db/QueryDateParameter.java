@@ -23,7 +23,7 @@ public final class QueryDateParameter extends QueryParameter {
 
     @Override
     public Object getValueToPrint() {
-        return parameterValue.toString();
+        return parameterValue;
     }
 
 }// class

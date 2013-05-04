@@ -12,7 +12,7 @@ public final class UpdateQueryPrinter {
     @Override
     public String toString() {
         final String queryName = query.getClass().getCanonicalName();
-        final String printedSelectQuery = InternalQueryPrinter.printUpdateQuery(query);
+        final String printedSelectQuery = QueryPrinterInternal.printUpdateQuery(query);
         final String toString = "[queryName="+ queryName + ", query=" + printedSelectQuery + "]";
         return toString;
     }
