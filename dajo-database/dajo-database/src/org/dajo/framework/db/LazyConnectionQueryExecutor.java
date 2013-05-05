@@ -2,7 +2,6 @@ package org.dajo.framework.db;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Date;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.locks.Lock;
@@ -21,7 +20,7 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
 
     private Connection connection = null;
 
-    private Date lastTime = new Date();
+    private Long lastTime = null;
 
     private final DatabaseConfig dbConfig;
 
@@ -65,8 +64,9 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
     public long getIdleTime() {
         lock.lock();
         try {
-            final Date now = new Date();
-            return now.getTime() - lastTime.getTime();
+            final long now = System.currentTimeMillis();
+            final long validLastTime = lastTime != null ? lastTime.longValue() : 0l;
+            return now - validLastTime;
         } finally {
             lock.unlock();
         }
@@ -118,7 +118,7 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
             SelectQueryResult<T> error = new SelectQueryResult<T>();
             return error;
         } finally {
-            lastTime = new Date();
+            lastTime = Long.valueOf(System.currentTimeMillis());
             lock.unlock();
             chronometer.close();
         }
@@ -135,19 +135,18 @@ public class LazyConnectionQueryExecutor implements QueryExecutor {
     private static final class DatabaseReleaser extends TimerTask {
         static private final Logger INNERLOGGER = LoggerFactory.getLogger(DatabaseReleaser.class);
         private final LazyConnectionQueryExecutor queryExecutor;
-        private final int maxIdleTime;
+        private final long maxIdleTime;
 
-        protected DatabaseReleaser(final LazyConnectionQueryExecutor queryExecutor, final int maxIdleTime) {
+        protected DatabaseReleaser(final LazyConnectionQueryExecutor queryExecutor, final long maxIdleTime) {
             this.queryExecutor = queryExecutor;
             this.maxIdleTime = maxIdleTime;
         }
-
         @Override
         public void run() {
             long idleTime = queryExecutor.getIdleTime();
             if (idleTime > maxIdleTime) {
                 if (queryExecutor.close() == true) {
-                    INNERLOGGER.info("Max idle time reached, releasing the connection. idleTime=" + idleTime);
+                    INNERLOGGER.info("Max idle time reached, releasing the connection. maxIdleTime=" + maxIdleTime + ", idleTime=" + idleTime);
                 }
             }
         }
