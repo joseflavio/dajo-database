@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import org.dajo.framework.db.SelectQueryResultAdapter;
-import org.dajo.types.BooleanConverter;
+import org.dajo.types.adapter.BooleanConverter;
 
 public class SelectQuerySimpleResultAdapters {
 
@@ -20,7 +20,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return new SelectQuerySingleResult<Boolean>();
 	    }
 	}
-	
+
 	static public class ResultAdapterBoolean implements SelectQueryResultAdapter<Boolean> {
 	    @Override
 	    public Boolean adaptResultSet(final ResultSet rs) throws SQLException {
@@ -31,7 +31,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return null;
 	    }
 	}
-	
+
 	static public class ResultAdapterInteger implements SelectQueryResultAdapter<Integer> {
 	    @Override
 	    public Integer adaptResultSet(final ResultSet rs) throws SQLException {
@@ -42,7 +42,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return null;
 	    }
 	}
-	
+
 	static public class ResultAdapterIntegerList implements SelectQueryResultAdapter<List<Integer>> {
 	    @Override
 	    public List<Integer> adaptResultSet(final ResultSet rs) throws SQLException {
@@ -54,7 +54,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return result;
 	    }
 	}
-	
+
 	static public class ResultAdapterLong implements SelectQueryResultAdapter<Long> {
 	    @Override
 	    public Long adaptResultSet(final ResultSet rs) throws SQLException {
@@ -65,7 +65,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return null;
 	    }
 	}
-	
+
 	static public class ResultAdapterString implements SelectQueryResultAdapter<String> {
 	    @Override
 	    public String adaptResultSet(final ResultSet rs) throws SQLException {
@@ -76,7 +76,7 @@ public class SelectQuerySimpleResultAdapters {
 	        return null;
 	    }
 	}
-	
+
 	static public class ResultAdapterStringList implements SelectQueryResultAdapter<List<String>> {
 	    @Override
 	    public List<String> adaptResultSet(final ResultSet rs) throws SQLException {
@@ -88,10 +88,10 @@ public class SelectQuerySimpleResultAdapters {
 	        return result;
 	    }
 	}
-	
+
 	static public class ResultAdapterStringTable implements SelectQueryResultAdapter<List<String[]>> {
-		private int columns;
-		public ResultAdapterStringTable(int columns) {
+		private final int columns;
+		public ResultAdapterStringTable(final int columns) {
 			this.columns = columns;
 		}
 	    @Override
@@ -108,5 +108,5 @@ public class SelectQuerySimpleResultAdapters {
 	        return result;
 	    }
 	}
-	
+
 }// class

@@ -2,19 +2,19 @@ package org.dajo.framework.db;
 
 import java.util.Arrays;
 
-import org.dajo.types.TypeAdapter;
-import org.dajo.types.TypeAdapterResult;
+import org.dajo.types.Function;
+import org.dajo.types.Optional;
 
-final class SqlDriverTypeAdapter implements TypeAdapter<SqlDriversNames, String> {
+final class SqlDriverTypeAdapter implements Function<String, Optional<SqlDriversNames>> {
 
     @Override
-    public TypeAdapterResult<SqlDriversNames> adapt(final String value) {
+    public Optional<SqlDriversNames> apply(final String value) {
         try {
             SqlDriversNames sqlDriver = SqlDriversNames.valueOf(value.toUpperCase());
-            return new TypeAdapterResult<SqlDriversNames>(sqlDriver);
+            return Optional.of(sqlDriver);
         } catch (IllegalArgumentException e) {
             throw new RuntimeException("Invalid value: " + value + ", Expected values: " + Arrays.toString(SqlDriversNames.values()), e);
         }
     }
 
-}
+}// class
