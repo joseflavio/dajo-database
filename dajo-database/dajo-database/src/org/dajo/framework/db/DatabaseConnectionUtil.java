@@ -29,6 +29,9 @@ final class DatabaseConnectionUtil {
         if (SqlDriversNames.MY_SQL.equals(dbConfig.getDbDriver())) {
             return "jdbc:mysql://" + dbConfig.getDbHost() + ":" + dbConfig.getDbPort() + "/" + dbConfig.getDbName();
         }
+        if (SqlDriversNames.ORACLE.equals(dbConfig.getDbDriver())) {
+            return "jdbc:oracle:thin:@//" + dbConfig.getDbHost() + ":" + dbConfig.getDbPort() + "/" + dbConfig.getDbName();
+        }
         throw new RuntimeException("Unsupported driver: " + dbConfig.getDbDriver());
     }
 

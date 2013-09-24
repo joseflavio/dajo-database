@@ -9,20 +9,22 @@
     <!-- for default value -->
     <property name="tmp.dir" value="tmp" />
     
-    <!-- Dynamic properties -->
-    <buildnumber file="${ant.project.name}.number"/>
-    <tstamp>
-        <format property="build.timeid" pattern="yyyyMMdd-hhmmss" timezone="UTC" />
-    </tstamp>
-    <tstamp>
-        <format property="jar.manifest.builtdate" pattern="yyyy-MM-dd HH:mm:ss" />
-    </tstamp>
-
-    <!-- Derivated properties -->
-    <property name="build.id" value="${build.number}-${build.timeid}"/>
-    <property name="tmp.build.dir" value="${tmp.dir}/${jar.name}-${project.version}-jar/${build.id}" />
-    <property name="tmp.classes.dir" value="${tmp.build.dir}/classes" />
-
+    <target name="define-buildid">
+        <!-- Dynamic properties -->
+        <buildnumber file="${ant.project.name}.number"/>
+        <tstamp>
+            <format property="build.timeid" pattern="yyyyMMdd-hhmmss" timezone="UTC" />
+        </tstamp>
+        <!-- Derivated properties -->
+        <property name="build.id" value="${build.number}-${build.timeid}"/>
+        <property name="tmp.build.dir" value="${tmp.dir}/${jar.name}-${project.version}-jar/${build.id}" />
+    </target>
+    
+    <target name="define-tmp-build-dir" depends="define-buildid">
+        <property name="tmp.build.dir" value="${tmp.dir}/${jar.name}-${project.version}-jar/${build.id}" />
+        <echo level="info" message="tmp.build.dir=${tmp.build.dir}" />
+    </target>
+    
     <!-- Classpath -->
     <path id="project.classpath">
         <fileset dir="lib">
@@ -35,12 +37,9 @@
         <mkdir dir="build" />
     </target>
 
-    <target name="show-config">
-        <echo level="info" message="tmp.build.dir=${tmp.build.dir}" />
-        <echo level="info" message="tmp.classes.dir=${tmp.classes.dir}" />
-    </target>
-
-    <target name="copy-sources">
+    <target name="copy-sources" depends="define-tmp-build-dir">
+        <property name="tmp.classes.dir" value="${tmp.build.dir}/classes" />
+        <echo message="copy-sources - tmp.classes.dir=${tmp.classes.dir}"/>
         <mkdir dir="${tmp.classes.dir}" />
         <copy todir="${tmp.classes.dir}">
             <fileset dir="src" includes="**/*" />
@@ -58,13 +57,18 @@
     </target>
 
     <target name="jar">
+        <tstamp>
+            <format property="build-time-dir" pattern="yyyy-MM-dd_HH-mm-ss" />
+        </tstamp>
         <antcall target="build-external">
-            <param name="build.dest.dir" value="build/${build.id}" />
+            <param name="build.dest.dir" value="build/${build-time-dir}" />
         </antcall>
     </target>
 
     <target name="build-external" depends="compile">
-
+        
+        <echo message="build-external - build.dest.dir=${build.dest.dir}"/>
+        
         <fail message="Missing mandatory property.">
             <condition>
                 <not>
@@ -75,6 +79,11 @@
 
         <mkdir dir="${tmp.build.dir}/manifest" />
 
+        <tstamp>
+            <format property="jar.manifest.builtdate" pattern="yyyy-MM-dd HH:mm:ss" />
+        </tstamp>
+            
+        <echo message="Generating the JAR. Implementation-Version: ${project.version}-b${build.id}"/>
         <manifest file="${tmp.build.dir}/manifest/MANIFEST.MF">
             <attribute name="Built-By" value="${jar.manifest.builtby}" />
             <attribute name="Built-Date" value="${jar.manifest.builtdate}"/>
