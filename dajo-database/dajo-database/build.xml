@@ -6,8 +6,8 @@
     <property file="build.local.properties" />
     <property file="build.properties" />
 
-    <!-- for default value -->
-    <property name="tmp.dir" value="tmp" />
+    <!-- for default value this way we dont polute our workspace when searching for files/classes -->
+    <property name="tmp.dir" value="../tmp" />
     
     <target name="define-buildid">
         <!-- Dynamic properties -->
@@ -49,10 +49,12 @@
     <target name="compile" depends="copy-sources">
         <property name="debugClassPath" refid="project.classpath" />
         <echo level="info" message="Classpath=${debugClassPath}" />
-        <javac optimize="true" deprecation="true" encoding="UTF-8" includeantruntime="false" destdir="${tmp.classes.dir}" debug="${jar.javac.debug}"
-            target="${jar.javac.target}" source="${jar.javac.source}" bootclasspath="${jar.javac.bootclasspath16}">
-            <src path="${tmp.classes.dir}" />
-            <classpath refid="project.classpath" />
+        <javac 
+            optimize="true" deprecation="true" encoding="UTF-8" includeantruntime="false"
+            destdir="${tmp.classes.dir}" debug="${jar.javac.debug}"
+            target="${jar.javac.target}" source="${jar.javac.source}">
+                <src path="${tmp.classes.dir}" />
+                <classpath refid="project.classpath" />
         </javac>
     </target>
 
